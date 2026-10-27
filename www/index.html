@@ -1,0 +1,272 @@
+<!doctype html><html lang="id" dir="ltr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cloud</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+<style>:root{--f:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,"Segoe UI",Roboto,system-ui,sans-serif;--bg:#f2f2f7;--card:#fff;--ink:#000;--mu:#8e8e93;--st:rgba(60,60,67,.16);--fill:rgba(118,118,128,.12);--ac:#007aff;--rd:#ff3b30;--sun:#ff9f0a;--sg:#fff;--gl:rgba(242,242,247,.6);--gb:rgba(255,255,255,.7);--gs:0 12px 32px rgba(0,0,0,.16),0 2px 6px rgba(0,0,0,.06);--i1:rgba(255,255,255,.85);--i2:rgba(255,255,255,.3);color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#000;--card:#1c1c1e;--ink:#fff;--st:rgba(84,84,88,.55);--fill:rgba(118,118,128,.24);--ac:#0a84ff;--rd:#ff453a;--sg:#636366;--gl:rgba(28,28,30,.55);--gb:rgba(255,255,255,.16);--gs:0 14px 36px rgba(0,0,0,.6);--i1:rgba(255,255,255,.26);--i2:rgba(255,255,255,.06);color-scheme:dark}}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font:16px/1.35 var(--f);-webkit-font-smoothing:antialiased}
+h1,h2{font-family:var(--f)}small{color:var(--mu)}button{font-family:var(--f);cursor:pointer}
+section{position:absolute;inset:0;display:none;flex-direction:column}section.on{display:flex}
+main{flex:1;overflow:auto;padding:0 16px 120px}
+#hd{padding:14px 16px 6px}.top{display:flex;justify-content:space-between;align-items:center}
+#hd h1{font-size:34px;font-weight:700;letter-spacing:-.03em}
+.rb{display:flex;gap:3px;margin:10px 0 6px}.rb i{height:7px;background:var(--fill);border-radius:4px;overflow:hidden}.rb b,.bar b{display:block;height:100%;background:var(--ac);border-radius:4px}
+.bar{height:5px;background:var(--fill);border-radius:3px;margin-top:7px}
+.bt1{background:var(--ac);color:#fff;border:0;padding:9px 17px;border-radius:999px;font:600 14px var(--f);transition:transform .2s,opacity .2s}.bt1:active{transform:scale(.95);opacity:.85}
+.lk{background:none;border:0;color:var(--ac);font:500 15px var(--f);padding:8px 8px}.dg{color:var(--rd)!important}
+main h2{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:22px 2px 9px}main h2 small{font:500 14px var(--f)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-flow:dense;gap:4px}
+.cell{position:relative;aspect-ratio:1;background:var(--fill) center/cover;overflow:hidden;cursor:pointer;border-radius:14px;transition:transform .2s}.cell:active{transform:scale(.97)}.cell.big{grid-column:span 2;grid-row:span 2;border-radius:20px}
+.cell .d{position:absolute;left:7px;bottom:8px;background:rgba(0,0,0,.42);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font:600 11px var(--f);padding:3px 8px;border-radius:999px}
+.pg{position:absolute;left:0;bottom:0;height:4px;background:var(--sun)}
+.of{position:absolute;right:7px;bottom:8px;background:rgba(0,0,0,.42);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-size:11px;padding:3px 7px;border-radius:999px}
+.cell.sel{outline:3px solid var(--ac);outline-offset:-3px}.cell.sel:after{content:"✓";position:absolute;top:7px;right:7px;width:24px;height:24px;border-radius:50%;background:var(--ac);color:#fff;text-align:center;line-height:24px;font-weight:700;font-size:14px}
+.grp{background:var(--card);border-radius:18px;overflow:hidden;margin:8px 0 16px}.grp:empty{display:none}
+.row{display:flex;align-items:center;gap:12px;padding:10px 14px;position:relative;transition:background .15s}.row:active{background:var(--fill)}
+.row+.row:before{content:"";position:absolute;top:0;left:14px;right:0;height:.5px;background:var(--st)}
+.t{flex:1;min-width:0}.t b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.t small{font-size:13px}
+.ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;flex:none}
+.k-f{background:linear-gradient(#5ac8fa,#007aff)}.k-i{background:linear-gradient(#6ee28f,#2fb350)}.k-v{background:linear-gradient(#ff9a8a,#ff3b30)}.k-d{background:linear-gradient(#b8b8bd,#8e8e93)}
+.chev{color:var(--mu);font-size:24px;line-height:1;margin-left:-4px}
+.ck{width:22px;height:22px;border:2px solid var(--mu);border-radius:50%;flex:none}.ck.on{background:var(--ac);border-color:var(--ac);box-shadow:inset 0 0 0 3px var(--card)}
+.cr{margin:6px 2px 12px;color:var(--mu);font-size:15px}.cr a{color:var(--ac);font-weight:500}.act{display:flex;align-items:center;gap:2px;margin:0 0 4px;flex-wrap:wrap}
+.em{padding:60px 24px;color:var(--mu);text-align:center}.em h2{color:var(--ink);margin:0 0 6px}
+#sb{padding:0 16px 8px}#q{width:100%;border:0;background:var(--fill);color:var(--ink);padding:10px 14px;border-radius:12px;font:16px var(--f);outline:0}
+.gt{position:sticky;top:0;z-index:3;margin:0 -16px;padding:8px 16px;background:var(--gl);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
+.seg{position:relative;display:flex;background:var(--fill);border-radius:11px;padding:2px}
+.seg i{position:absolute;top:2px;bottom:2px;left:2px;width:calc((100% - 4px)/2);background:var(--sg);border-radius:9px;box-shadow:0 3px 8px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.05);transform:translateX(calc(var(--s,0)*100%));transition:transform .38s cubic-bezier(.3,1.35,.4,1)}
+.seg button{position:relative;flex:1;padding:7px 0;background:none;border:0;font:600 13px var(--f);color:var(--ink)}.seg button small{font-size:12px}
+/* auth */
+#auth{justify-content:center;padding:28px}
+.appi{width:92px;height:92px;border-radius:22%;background:linear-gradient(145deg,#0e1b2c,#2a6fd0);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 12px 28px rgba(42,111,208,.38)}.appi svg{width:56px;color:#f4f8ff}
+#auth h1{text-align:center;font-size:34px;font-weight:700;letter-spacing:-.03em}#auth .sub{text-align:center;margin-top:2px}
+.ig{margin:24px 0 4px;background:var(--card);border-radius:18px}.ig input{display:block;width:100%;border:0;background:var(--card);color:var(--ink);padding:15px 16px;font-size:17px;font-family:inherit;outline:0}.ig input:first-child{border-radius:18px 18px 0 0}.ig input:last-child{border-radius:0 0 18px 18px}.ig input+input{border-top:.5px solid var(--st)}
+#err{color:var(--rd);min-height:22px;margin:8px 4px;font-size:14px;text-align:center}.wide{width:100%;padding:15px;font-size:17px;margin-bottom:6px}#auth .lk{width:100%}
+/* viewer & toast */
+#v{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:15;display:none;flex-direction:column}#v.on{display:flex}
+#vb{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;color:#fff;text-align:center}#vb img{max-width:100%;max-height:100%;border-radius:12px}
+#vt{display:flex;justify-content:space-between;align-items:center;padding:12px 8px;color:#fff}#vt .lk{color:#fff}
+#toast{position:fixed;left:16px;right:16px;bottom:100px;max-width:380px;margin:auto;background:rgba(44,44,46,.92);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;text-align:center;opacity:0;transform:translateY(8px);transition:.3s;pointer-events:none;z-index:40}
+/* sheet */
+#pk{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:50;display:none;align-items:flex-end}
+.sh{background:var(--card);width:100%;max-height:72%;overflow:auto;padding:12px 18px 28px;display:flex;flex-direction:column;gap:6px;border-radius:26px 26px 0 0}
+.sh:before{content:"";width:38px;height:5px;border-radius:3px;background:var(--st);align-self:center;margin-bottom:8px}.sh h3{font:700 20px var(--f);letter-spacing:-.02em;margin:2px 0 4px}
+.gl{text-align:left;padding:14px 4px;border:0;border-bottom:.5px solid var(--st);background:none;color:var(--ink);font-size:16px}
+/* navigasi liquid glass */
+nav,#ab{position:fixed;left:18px;right:18px;bottom:calc(14px + env(safe-area-inset-bottom,0px));max-width:360px;margin:0 auto;display:flex;padding:6px;border-radius:34px;z-index:10;background:var(--gl);-webkit-backdrop-filter:blur(26px) saturate(190%) brightness(1.04);backdrop-filter:blur(26px) saturate(190%) brightness(1.04);border:1px solid var(--gb);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(255,255,255,.1),var(--gs);transition:transform .55s cubic-bezier(.3,1.3,.4,1),opacity .3s}
+nav{height:66px}#ab{height:58px;transform:translateY(150%);opacity:0;pointer-events:none}#ab.on{transform:none;opacity:1;pointer-events:auto}nav.hid{transform:translateY(150%);opacity:0;pointer-events:none}
+nav button{position:relative;z-index:2;flex:1;background:none;border:0;color:var(--mu);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:600 10.5px var(--f);letter-spacing:.04em;transition:color .35s,transform .25s}
+nav button.on{color:var(--ac)}nav button:active{transform:scale(.9)}
+nav svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .5s cubic-bezier(.3,1.5,.4,1)}nav button.on svg{transform:translateY(-1px) scale(1.08)}
+#ind{position:absolute;top:6px;bottom:6px;left:6px;width:calc((100% - 12px)/3);transform:translateX(calc(var(--i,0)*100%));transition:transform .62s cubic-bezier(.3,1.5,.4,1);z-index:1;pointer-events:none}
+#ind i{display:block;height:100%;border-radius:28px;background:linear-gradient(180deg,var(--i1),var(--i2));border:1px solid rgba(255,255,255,.6);box-shadow:inset 0 1px 1px rgba(255,255,255,.9),inset 0 -8px 14px rgba(0,122,255,.12),0 5px 16px rgba(0,0,0,.12)}
+@keyframes liq{0%{transform:scale(1)}30%{transform:scale(1.2,.88)}65%{transform:scale(.96,1.06)}100%{transform:scale(1)}}
+#ab button{flex:1;background:none;border:0;color:var(--ac);font:600 15px var(--f);border-radius:28px;transition:background .2s}#ab button:active{background:var(--i2)}#ab button:last-child{color:var(--rd)}
+@keyframes sw{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}#c.sw{animation:sw .34s cubic-bezier(.2,.8,.2,1)}
+/* pemutar */
+#pl{position:fixed;inset:0;background:#000;z-index:20;display:none;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none}#pl.on{display:block}
+#vd{width:100%;height:100%;object-fit:contain;background:#000;display:block}
+#cv{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(rgba(0,0,0,.6),transparent 24%,transparent 62%,rgba(0,0,0,.65));transition:opacity .25s}
+#pl.hc #cv{opacity:0;pointer-events:none}#pl button{background:none;border:0;color:#fff;font:inherit}
+.tb{display:flex;align-items:center;gap:8px;padding:14px 12px}.tb span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.tb button{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.18)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);font-size:20px;padding:0}
+.ct{display:flex;justify-content:center;align-items:center;gap:26px}.ct button{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);font-size:14px;font-weight:600}
+#pp{width:78px!important;height:78px!important;background:rgba(255,255,255,.24)!important;font-size:28px!important}
+.bt{display:flex;align-items:center;gap:10px;margin:0 12px calc(16px + env(safe-area-inset-bottom,0px));padding:10px 16px;border-radius:26px;background:rgba(30,30,32,.45);-webkit-backdrop-filter:blur(22px) saturate(160%);backdrop-filter:blur(22px) saturate(160%);border:1px solid rgba(255,255,255,.12);font-size:13px;font-variant-numeric:tabular-nums}
+.sk{flex:1;position:relative;height:26px}.sk:before{content:"";position:absolute;left:0;right:0;top:11px;height:4px;background:rgba(255,255,255,.25);border-radius:2px}
+#bf,#pr{position:absolute;left:0;top:11px;height:4px;border-radius:2px;width:0}#bf{background:rgba(255,255,255,.35)}#pr{background:#fff}
+.sk input{position:absolute;inset:0;width:100%;height:26px;-webkit-appearance:none;appearance:none;background:none;margin:0;z-index:2;border:0}
+.sk input::-webkit-slider-runnable-track{background:none;height:26px}.sk input::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;margin-top:4px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.sk input::-moz-range-thumb{width:18px;height:18px;border:0;border-radius:50%;background:#fff}
+#sp{position:absolute;left:50%;top:50%;margin:-22px;width:44px;height:44px;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite;display:none;pointer-events:none}@keyframes sp{to{transform:rotate(360deg)}}
+#nt{position:absolute;top:30%;left:50%;transform:translateX(-50%);background:rgba(30,30,32,.7);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);padding:8px 16px;border-radius:999px;font-size:13px;font-weight:600;opacity:0;transition:.2s;pointer-events:none;white-space:nowrap}
+#dim{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
+#sub{position:absolute;left:8%;right:8%;bottom:96px;text-align:center;font-size:17px;font-weight:600;text-shadow:0 1px 3px #000,0 0 8px #000;pointer-events:none;display:none;white-space:pre-line}
+#mx{display:none;position:absolute;top:4px;right:4px;z-index:3;font-size:14px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.5)!important;padding:0}
+#pl.mini{inset:auto 12px 96px auto;width:184px;height:104px;border-radius:18px;overflow:hidden;box-shadow:0 8px 28px rgba(0,0,0,.5)}#pl.mini #cv,#pl.mini #sub{display:none}#pl.mini #mx{display:block}
+
+html,body{height:100%;overflow:hidden}body{position:fixed;inset:0;padding-top:env(safe-area-inset-top,0px)}</style></head><body>
+<section id="auth"><div class="appi"><svg viewBox="0 0 64 44"><g fill="currentColor"><circle cx="20" cy="26" r="14"/><circle cx="36" cy="20" r="17"/><circle cx="50" cy="29" r="11"/><rect x="14" y="26" width="42" height="14" rx="7"/></g></svg></div><h1>Cloud</h1><p class="sub"><small>Semua akun Drive-mu, satu galeri.</small></p><div class="ig"><input id="u" type="text" dir="ltr" placeholder="Username" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="username" enterkeyhint="next" onkeydown="if(event.key==='Enter')$('#p').focus()"><input id="p" type="password" dir="ltr" placeholder="Password (min. 6 karakter)" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="current-password" enterkeyhint="go" onkeydown="if(event.key==='Enter')sign(0)"></div><p id="err"></p><button class="bt1 wide" onclick="sign(0)">Masuk</button><button class="lk" onclick="sign(1)">Buat akun baru</button></section>
+<section id="main"><header id="hd"></header><div id="sb" style="display:none"><input id="q" placeholder="Cari nama file di semua akun" oninput="sq(this.value)"></div><main id="c"></main><nav><div id="ind"><i></i></div><button data-t="gal"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="3.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5"/></svg><span>Galeri</span></button><button data-t="files"><svg viewBox="0 0 24 24"><path d="M3.5 8a2 2 0 0 1 2-2h3.8l2 2.5h7.2a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></svg><span>Berkas</span></button><button data-t="acc"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="3.6"/><path d="M5 19.5c1.2-3.4 4-5 7-5s5.8 1.6 7 5"/></svg><span>Akun</span></button></nav><div id="ab"><button onclick="movePick()">Pindahkan</button><button onclick="offSel()">Offline</button><button onclick="delSel()">Hapus</button></div></section>
+<div id="v"><div id="vt"><button class="lk" onclick="closeV()">Tutup</button><span id="vn"></span><button class="lk" onclick="rmFile(vf.id)">Hapus</button></div><div id="vb"></div></div>
+<div id="pl"><video id="vd" playsinline preload="auto"></video><div id="dim"></div><div id="sub"></div><button id="mx" onclick="closeP()">✕</button><div id="sp"></div><div id="nt"></div><div id="cv"><div class="tb"><button onclick="closeP()">‹</button><span id="pt"></span><button onclick="cc()" style="font-size:15px">CC</button><button onclick="mini()" style="font-size:19px">▭</button></div><div class="ct"><button onclick="sk(-10)">↺ 10</button><button id="pp" onclick="tg()">▶</button><button onclick="sk(10)">10 ↻</button></div><div class="bt"><span id="tc">0:00</span><div class="sk"><i id="bf"></i><i id="pr"></i><input type="range" id="rg" min="0" max="1000" value="0"></div><span id="td">0:00</span><button id="sd" onclick="spd()">1×</button><button onclick="rot()">⛶</button></div></div></div>
+<div id="toast"></div><div id="pk"></div><input type="file" id="f" multiple hidden><input type="file" id="sf" accept=".srt,.vtt" hidden>
+
+<script>const $=s=>document.querySelector(s);
+let accts=[],files=[],trash=[],folders=[],P={},path='',tab='gal',gt='i',cur=null,vf=null,qq='',selOn=0,sel=new Set(),lpt,lpd=0;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const toast=m=>{const t=$('#toast');t.textContent=m;t.style.opacity=1;clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.opacity=0,2800)};
+const fmt=b=>{b=+b||0;const u=['B','KB','MB','GB','TB'];let i=0;while(b>=1024&&i<4){b/=1024;i++}return b.toFixed(i>1?1:0)+' '+u[i]};
+const tf=s=>{s=Math.max(0,s|0);const h=s/3600|0,m=s%3600/60|0,x=String(s%60).padStart(2,'0');return h?h+':'+String(m).padStart(2,'0')+':'+x:m+':'+x};
+const dl=s=>{const d=new Date(s),t=new Date(),n=(new Date(t.getFullYear(),t.getMonth(),t.getDate())-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/864e5;return n<1?'Hari ini':n<2?'Kemarin':d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})};
+const nm=f=>!qq||f.name.toLowerCase().includes(qq),dur=f=>(+(f.videoMediaMetadata&&f.videoMediaMetadata.durationMillis)||0)/1e3;
+const ib=m=>`<span class="ic ${m.startsWith('image/')?'k-i':m.startsWith('video/')?'k-v':'k-d'}">${ico(m)}</span>`;
+const ico=m=>m.startsWith('image/')?'🖼️':m.startsWith('video/')?'🎬':'📄';
+const show=id=>document.querySelectorAll('section').forEach(x=>x.classList.toggle('on',x.id==id));
+const inF=f=>{const x=(f.appProperties&&f.appProperties.folder)||'';return x&&folders.some(y=>y.id==x)?x:''};
+const gtabs=()=>{const n=t=>files.filter(f=>f.mimeType[0]==t).length,b=(t,l)=>`<button class="${gt==t?'on':''}" onclick="sgt('${t}')">${l} <small>${n(t)}</small></button>`;return `<div class="gt"><div class="seg" style="--s:${gt=='v'?1:0}"><i></i>${b('i','Foto')}${b('v','Video')}</div></div>`},sgt=t=>{if(gt==t)return;gt=t;const s=$('.seg');if(s){s.style.setProperty('--s',t=='v'?1:0);s.querySelectorAll('button').forEach((x,i)=>x.classList.toggle('on',i==(t=='v'?1:0)))}setTimeout(render,230)};
+function hdr(){const fin=accts.filter(a=>isFinite(a.limit)),tot=fin.reduce((s,a)=>s+a.limit,0),used=accts.reduce((s,a)=>s+(a.used||0),0);
+ $('#hd').innerHTML=selOn?`<div class="top"><h1 style="font-size:24px">${sel.size} dipilih</h1><button class="lk" onclick="exitSel()">Batal</button></div>`:
+ `<div class="top"><h1>Cloud</h1><div><button class="lk" onclick="tsb()">Cari</button><button class="lk" onclick="startSel()">Pilih</button><button class="bt1" onclick="$('#f').click()">Unggah</button></div></div><div class="rb">${accts.map(a=>`<i style="flex:${isFinite(a.limit)?a.limit:1}"><b style="width:${isFinite(a.limit)?a.used/a.limit*100:5}%"></b></i>`).join('')}</div><small>${accts.length?(fin.length==accts.length?fmt(tot-used)+' kosong · ':'')+accts.length+' akun terhubung':'Belum ada akun Google'}</small>`}
+const crumb=()=>{const r=[];let i=path;while(i){const x=folders.find(f=>f.id==i);if(!x)break;r.unshift(x);i=x.parent}return r};
+const lpa=id=>`onclick="clk('${id}')" onpointerdown="lp('${id}')" onpointerup="lpc()" onpointerleave="lpc()" onpointercancel="lpc()" oncontextmenu="return false"`;
+const ck=id=>selOn?`<span class="ck${sel.has(id)?' on':''}"></span>`:'';
+function setInd(t){const i=['gal','files','acc'].indexOf(t),n=$('nav');if(n.dataset.i==i)return;n.dataset.i=i;n.style.setProperty('--i',i);const k=$('#ind i');k.style.animation='none';void k.offsetWidth;k.style.animation='liq .62s'}
+function render(){hdr();const t=tab=='trash'||tab=='off'?'files':tab;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));
+ $('nav').classList.toggle('hid',!!selOn);$('#ab').classList.toggle('on',!!selOn);setInd(t);const c=$('#c');
+ if(tab=='gal'){const m=files.filter(f=>f.mimeType[0]==gt&&nm(f));
+  if(!m.length){c.innerHTML=gtabs()+`<div class="em"><h2>${qq?'Tidak ada hasil':gt=='v'?'Belum ada video':'Belum ada foto'}</h2><p>${qq?'Coba kata kunci lain.':accts.length?'Tekan Unggah untuk menyimpan '+(gt=='v'?'video':'foto')+' pertamamu.':'Tambahkan akun Google di tab Akun, lalu unggah.'}</p></div>`;return}
+  let h='',g='',n=0,cnt={};m.forEach(f=>{const l=dl(f.createdTime);cnt[l]=(cnt[l]||0)+1});
+  m.forEach(f=>{const l=dl(f.createdTime);if(l!=g){h+=(g?'</div>':'')+`<h2>${l} <small>${cnt[l]}</small></h2><div class="grid">`;g=l;n=0}
+   const v=f.mimeType[0]=='v',p=P[f.id];
+   h+=`<div class="cell${n++?'':' big'}${sel.has(f.id)?' sel':''}" id="g${f.id}" ${lpa(f.id)}>${v?`<span class="d">▶${dur(f)?' '+tf(dur(f)):''}</span>`:''}${isOff(f.id)?'<span class="of">⬇</span>':''}${p&&p.d&&p.t?`<i class="pg" style="width:${p.t/p.d*100}%"></i>`:''}</div>`});
+  c.innerHTML=gtabs()+h+'</div>';m.forEach(f=>thumb(f))}
+ if(tab=='files'){let fs,fl;if(qq){fs=folders.filter(x=>x.name.toLowerCase().includes(qq));fl=files.filter(nm)}else{fs=folders.filter(x=>x.parent==path);fl=files.filter(f=>inF(f)==path)}
+  c.innerHTML=(qq?`<div class="cr">Hasil pencarian "${esc(qq)}"</div>`:`<div class="cr"><a onclick="go('')">Beranda</a>${crumb().map(x=>` / <a onclick="go('${x.id}')">${esc(x.name)}</a>`).join('')}</div><div class="act"><button class="bt1" onclick="newF()">Folder baru</button><button class="lk" onclick="tab='off';render()">Offline ${offList().length}</button><button class="lk" onclick="tab='trash';render()">Sampah ${trash.length}</button></div>`)+
+  (fs.length+fl.length?'<div class="grp">':'')+fs.map(x=>`<div class="row" onclick="go('${x.id}')"><span class="ic k-f">📁</span><div class="t"><b>${esc(x.name)}</b><small>${folders.filter(y=>y.parent==x.id).length} folder · ${files.filter(f=>inF(f)==x.id).length} berkas</small></div><button class="lk dg" onclick="event.stopPropagation();rmF('${x.id}')">Hapus</button><span class="chev">›</span></div>`).join('')+
+  fl.map(f=>`<div class="row" ${lpa(f.id)}>${ck(f.id)}${ib(f.mimeType)}<div class="t"><b>${esc(f.name)}</b><small>${fmt(f.size)} · akun ${accts.indexOf(f.a)+1}${isOff(f.id)?' · ⬇ offline':''}</small></div>${selOn?'':`<button class="lk dg" onclick="event.stopPropagation();rmFile('${f.id}')">Hapus</button>`}</div>`).join('')+(fs.length+fl.length?'</div>':`<p class="em"><small>${qq?'Tidak ada hasil.':'Folder ini kosong. Tekan Unggah untuk mengisi.'}</small></p>`)}
+ if(tab=='off'){const l=offList().filter(nm);c.innerHTML=`<div class="cr"><a onclick="tab='files';render()">‹ Berkas</a> / Tersimpan offline</div>`+(l.length?'<div class="grp">'+l.map(f=>`<div class="row" onclick="openF('${f.id}')">${ib(f.mimeType)}<div class="t"><b>${esc(f.name)}</b><small>${fmt(f.size)}</small></div><button class="lk dg" onclick="event.stopPropagation();unOff('${f.id}')">Hapus offline</button></div>`).join('')+'</div>':'<p class="em"><small>Belum ada. Pilih file lalu tekan Offline.</small></p>')}
+ if(tab=='trash')c.innerHTML=`<div class="cr"><a onclick="tab='files';render()">‹ Berkas</a> / Sampah</div><p><small>Berkas di sampah dihapus otomatis oleh Google Drive setelah 30 hari.</small></p>`+(trash.length?`<button class="bt1 s2" onclick="emptyT()">Kosongkan sampah</button>`:'')+(trash.length?'<div class="grp">'+trash.map(f=>`<div class="row">${ib(f.mimeType)}<div class="t"><b>${esc(f.name)}</b><small>${fmt(f.size)}</small></div><button class="lk" onclick="restore('${f.id}')">Pulihkan</button><button class="lk dg" onclick="purge('${f.id}')">Hapus</button></div>`).join('')+'</div>':'<p class="em"><small>Sampah kosong.</small></p>')
+ if(tab=='acc')c.innerHTML='<div class="grp">'+accts.map((a,i)=>{const fin=isFinite(a.limit);return `<div class="row"><div class="t"><b>${i+1}. ${esc(a.email||'memuat...')}</b><small>${a.err?'Gagal terhubung':fin?fmt(a.used)+' dari '+fmt(a.limit):fmt(a.used)+' terpakai'}</small><div class="bar"><b style="width:${fin?Math.min(100,a.used/a.limit*100):0}%"></b></div></div><button class="lk" onclick="mv(${i},-1)">↑</button><button class="lk" onclick="mv(${i},1)">↓</button><button class="lk" onclick="rm(${i})">Lepas</button></div>`}).join('')+'</div>'+`<p class="em"><small>${accts.length?'Unggahan selalu mencoba akun nomor 1 dulu, lalu turun ke akun berikutnya jika penuh.':'Belum ada akun. Tambahkan akun Google pertamamu.'}</small></p><button class="bt1" onclick="addAcct()">Tambah akun Google</button> <button class="lk" onclick="out()">Keluar dari Cloud</button>`}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{if(tab==b.dataset.t)return;tab=b.dataset.t;render();const c=$('#c');c.classList.remove('sw');void c.offsetWidth;c.classList.add('sw')});
+const go=id=>{path=id;render()};
+$('#f').onchange=async e=>{const l=[...e.target.files];e.target.value='';if(!accts.length)return toast('Tambahkan akun Google dulu di tab Akun');for(const f of l)try{await up(f,tab=='files'?path:'')}catch(x){toast('Gagal mengunggah '+f.name)}refresh()};
+// ---- pencarian ----
+const tsb=()=>{const s=$('#sb'),on=s.style.display=='none';s.style.display=on?'block':'none';if(on)$('#q').focus();else{$('#q').value='';qq='';render()}};
+const sq=v=>{qq=v.trim().toLowerCase();render()};
+// ---- pilih banyak ----
+const clk=id=>{if(lpd){lpd=0;return}selOn?tsel(id):openF(id)};
+const lp=id=>{lpd=0;clearTimeout(lpt);lpt=setTimeout(()=>{lpd=1;if(!selOn){selOn=1;sel.clear()}tsel(id);navigator.vibrate&&navigator.vibrate(25)},450)},lpc=()=>clearTimeout(lpt);
+const tsel=id=>{sel.has(id)?sel.delete(id):sel.add(id);render()},startSel=()=>{selOn=1;sel.clear();render()},exitSel=()=>{selOn=0;sel.clear();render()};
+const selF=()=>[...sel].map(id=>files.find(x=>x.id==id)).filter(Boolean);
+function movePick(){if(!sel.size)return toast('Pilih berkas dulu');const o=[{id:'',name:'Beranda',d:0}],w=(p,d)=>folders.filter(x=>x.parent==p).forEach(x=>{o.push({id:x.id,name:x.name,d});w(x.id,d+1)});w('',1);
+ $('#pk').innerHTML=`<div class="sh"><h3>Pindahkan ke</h3>${o.map(x=>`<button class="gl" style="padding-left:${x.d*18+4}px" onclick="doMove('${x.id}')">${x.id?'📁':'🏠'} ${esc(x.name)}</button>`).join('')}<button class="lk" onclick="$('#pk').style.display='none'">Batal</button></div>`;$('#pk').style.display='flex'}
+async function doMove(id){$('#pk').style.display='none';const l=selF();for(const f of l)try{await moveFile(f,id)}catch(e){}exitSel();toast(l.length+' berkas dipindahkan');await refresh()}
+async function delSel(){const l=selF();for(const f of l)try{await delFile(f)}catch(e){}exitSel();toast(l.length+' berkas dipindah ke sampah');await refresh()}
+async function offSel(){const l=selF(),all=l.length&&l.every(f=>isOff(f.id));exitSel();for(const f of l)try{all?await rmOff(f.id):isOff(f.id)||await saveOff(f)}catch(e){toast('Gagal menyimpan '+f.name)}render();toast(all?'Dihapus dari offline':'Selesai disimpan offline')}
+async function unOff(id,s){await rmOff(id);if(!s)toast('Dihapus dari offline');render()}
+// ---- folder, sampah, berkas ----
+const desc=id=>[id,...folders.filter(x=>x.parent==id).flatMap(x=>desc(x.id))];
+async function newF(){const n=prompt('Nama folder baru');if(n&&n.trim()){await mkF(n.trim(),path);render();toast('Folder dibuat')}}
+async function rmF(id){const x=folders.find(f=>f.id==id),ids=desc(id),fs=files.filter(f=>ids.includes(inF(f)));
+ if(!confirm(`Hapus folder "${x.name}"?${fs.length?' '+fs.length+' berkas di dalamnya dipindah ke sampah.':''}`))return;
+ for(const f of fs)try{await delFile(f)}catch(e){}await dropFolders(ids);if(ids.includes(path))path=x.parent;await refresh();toast('Folder dihapus')}
+async function rmFile(id){const f=files.find(x=>x.id==id);if(!f)return;try{await delFile(f);closeV();toast('Dipindah ke sampah');await refresh()}catch(e){toast('Gagal menghapus')}}
+async function restore(id){const f=trash.find(x=>x.id==id);try{await restoreFile(f);toast('Dipulihkan');await refresh()}catch(e){toast('Gagal memulihkan')}}
+async function purge(id){const f=trash.find(x=>x.id==id);if(!f||!confirm(`Hapus "${f.name}" selamanya? Tidak bisa dipulihkan.`))return;try{await purgeFile(f);await unOff(id,1);await refresh()}catch(e){toast('Gagal menghapus')}}
+async function emptyT(){if(!trash.length||!confirm(`Hapus ${trash.length} berkas di sampah selamanya?`))return;for(const f of [...trash])try{await purgeFile(f)}catch(e){}await refresh();toast('Sampah dikosongkan')}
+function openF(id){const f=files.find(x=>x.id==id)||offList().find(x=>x.id==id);if(!f)return;
+ if(!net()&&!isOff(f.id))return toast('Butuh internet. Simpan offline dulu agar bisa dibuka tanpa internet.');
+ if(f.mimeType[0]=='v')return playV(f);vf=f;$('#v').classList.add('on');$('#vn').textContent=f.name;showImg(f)}
+function closeV(){$('#v').classList.remove('on');$('#vb').innerHTML=''}
+// ---- pemutar video ----
+const V=window.VD||$('#vd'),pl=$('#pl'),cl=(v,a,b)=>Math.max(a,Math.min(b,v));let lt=0,tt,ht,dr=0,ls=0,pend=0,cues=[],subOn=1,bri=1,sx=null,sy,sv,sm=0,swp=0;
+function ctl(){pl.classList.remove('hc');clearTimeout(ht);if(!V.paused)ht=setTimeout(()=>pl.classList.add('hc'),3200)}
+function note(m){const n=$('#nt');n.textContent=m;n.style.opacity=1;clearTimeout(note.h);note.h=setTimeout(()=>n.style.opacity=0,1500)}
+async function playV(f){cur=f;cues=[];$('#sub').style.display='none';pl.classList.add('on');pl.classList.remove('hc','mini');$('#pt').textContent=f.name;$('#sp').style.display='block';$('#pp').textContent='▶';
+ V.playbackRate=1;$('#sd').textContent='1×';$('#pr').style.width=$('#bf').style.width='0';$('#rg').value=0;$('#tc').textContent='0:00';$('#td').textContent=tf(dur(f));
+ await prep(f);const p=P[f.id];pend=p&&p.t>5?p.t:0;V.src=srcOf(f)}
+V.addEventListener('loadedmetadata',()=>{if(pend&&pend<V.duration-15){V.currentTime=pend;note('Dilanjutkan dari '+tf(pend))}pend=0;$('#td').textContent=tf(V.duration);const p=V.play();p&&p.catch&&p.catch(()=>{})});
+function showSub(){const s=$('#sub');if(!cues.length||!subOn||!cur){s.style.display='none';return}const t=V.currentTime,c=cues.find(c=>t>=c.a&&t<=c.b);s.textContent=c?c.t:'';s.style.display=c?'block':'none'}
+V.addEventListener('timeupdate',()=>{if(!V.duration||!cur)return;const r=V.currentTime/V.duration;$('#pr').style.width=r*100+'%';if(!dr){$('#rg').value=r*1000;$('#tc').textContent=tf(V.currentTime)}
+ if(V.buffered&&V.buffered.length)$('#bf').style.width=Math.min(100,V.buffered.end(V.buffered.length-1)/V.duration*100)+'%';
+ showSub();if(Date.now()-ls>15000){ls=Date.now();saveP()}});
+['play','pause'].forEach(e=>V.addEventListener(e,()=>{$('#pp').textContent=V.paused?'▶':'❚❚';ctl();if(e=='pause')saveP()}));
+['waiting','seeking'].forEach(e=>V.addEventListener(e,()=>{if(cur)$('#sp').style.display='block'}));
+['playing','canplay','seeked'].forEach(e=>V.addEventListener(e,()=>$('#sp').style.display='none'));
+V.addEventListener('seeked',showSub);V.addEventListener('ended',()=>{saveP();note('Selesai')});
+function saveP(){if(!cur||!V.duration||!isFinite(V.duration))return;const t=V.ended||V.currentTime>V.duration-15?0:Math.floor(V.currentTime);P[cur.id]={t,d:V.duration};persistP(cur.id,t,V.duration)}
+const tg=()=>V.paused?V.play():V.pause();
+function sk(d){if(!d)return tg();V.currentTime=Math.max(0,Math.min(V.duration,V.currentTime+d));note((d>0?'+':'−')+Math.abs(d)+' dtk');ctl()}
+function spd(){const s=[1,1.25,1.5,2,.5],i=(s.indexOf(V.playbackRate)+1)%5;V.playbackRate=s[i];$('#sd').textContent=s[i]+'×';ctl()}
+$('#rg').oninput=e=>{dr=1;$('#tc').textContent=tf(e.target.value/1000*V.duration);ctl()};
+$('#rg').onchange=e=>{V.currentTime=e.target.value/1000*V.duration;dr=0};
+pl.onclick=e=>{if(e.target.closest('button,input'))return;if(pl.classList.contains('mini')){pl.classList.remove('mini');return}if(swp){swp=0;return}
+ const r=pl.getBoundingClientRect(),x=(e.clientX-r.left)/r.width;
+ if(Date.now()-lt<320){clearTimeout(tt);lt=0;sk(x<.35?-10:x>.65?10:0);return}
+ lt=Date.now();tt=setTimeout(()=>pl.classList.contains('hc')?ctl():pl.classList.add('hc'),320)};
+// geser vertikal: kiri = kecerahan, kanan = volume
+pl.addEventListener('pointerdown',e=>{swp=0;sm=0;sx=pl.classList.contains('mini')||e.target.closest('button,input')?null:e.clientX;sy=e.clientY});
+pl.addEventListener('pointermove',e=>{if(sx==null)return;const dx=e.clientX-sx,dy=e.clientY-sy,r=pl.getBoundingClientRect();
+ if(!sm){if(Math.abs(dy)<14||Math.abs(dy)<Math.abs(dx)*1.5)return;sm=sx-r.left<r.width/2?1:2;sv=sm==1?bri:(V.volume==null?1:V.volume)}
+ const v=cl(sv-dy/r.height*1.3,sm==1?.15:0,1);swp=1;
+ if(sm==1){bri=v;$('#dim').style.opacity=1-v;note('Kecerahan '+Math.round(v*100)+'%')}else{V.volume=v;note('Volume '+Math.round(v*100)+'%')}});
+['pointerup','pointercancel'].forEach(e=>pl.addEventListener(e,()=>{sx=null}));
+// ---- subtitle (.srt / .vtt) ----
+const ts=(h,m,s,f)=>(+h||0)*3600+ +m*60+ +s+ +('0.'+f);
+function parseSub(t){const r=/(?:(\d+):)?(\d+):(\d+)[,.](\d+)\s*-->\s*(?:(\d+):)?(\d+):(\d+)[,.](\d+)[^\n]*\n([\s\S]*?)(?=\n\s*\n|$)/g,o=[];let m;t=t.replace(/\r/g,'');while(m=r.exec(t))o.push({a:ts(m[1],m[2],m[3],m[4]),b:ts(m[5],m[6],m[7],m[8]),t:m[9].replace(/<[^>]+>/g,'').trim()});return o}
+function cc(){if(!cues.length){if(typeof demoSub=='function'&&confirm('Simulasi: pakai subtitle contoh?\nBatal = pilih file .srt sendiri.')){cues=demoSub();subOn=1;note('Subtitle contoh aktif');return}return $('#sf').click()}
+ subOn=!subOn;note('Subtitle '+(subOn?'aktif':'mati'));showSub()}
+$('#sf').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;cues=parseSub(await f.text());subOn=1;note(cues.length?'Subtitle dimuat ('+cues.length+' baris)':'Subtitle tidak terbaca');showSub()};
+const mini=()=>{pl.classList.add('mini');pl.classList.remove('hc')};
+async function rot(){try{if(!document.fullscreenElement)await pl.requestFullscreen();await screen.orientation.lock(pl.clientWidth<pl.clientHeight?'landscape':'portrait')}catch(e){toast('Putar HP untuk mengganti orientasi')}}
+function closeP(){saveP();V.pause();cur=null;cues=[];try{V.removeAttribute('src');V.load()}catch(e){}pl.classList.remove('on','mini');$('#sub').style.display='none';try{screen.orientation.unlock();document.fullscreenElement&&document.exitFullscreen()}catch(e){}render()}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&cur)V.pause()});
+</script>
+<script>const C=window.CFG;firebase.initializeApp(C.firebase);
+const auth=firebase.auth(),db=firebase.firestore();let uid,tok={},ver;
+const U=()=>db.collection('users').doc(uid),D='https://www.googleapis.com/drive/v3/',TOK='https://oauth2.googleapis.com/token';
+const mail=u=>u.trim().toLowerCase().replace(/[^a-z0-9._-]/g,'')+'@cloud.app';
+async function sign(reg){const u=$('#u').value,p=$('#p').value;$('#err').textContent='';
+ try{reg?await auth.createUserWithEmailAndPassword(mail(u),p):await auth.signInWithEmailAndPassword(mail(u),p)}catch(e){$('#err').textContent='Gagal: periksa username dan password.'}}
+const out=()=>auth.signOut();
+auth.onAuthStateChanged(async u=>{if(!u){uid=null;show('auth');return}uid=u.uid;tab='gal';path='';show('main');try{await load()}catch(e){tab='off';render()}});
+async function load(){const[a,f,p]=await Promise.all([U().collection('accts').orderBy('order').get(),U().collection('folders').get(),U().collection('prog').get()]);
+ accts=a.docs.map(d=>({id:d.id,...d.data()}));folders=f.docs.map(d=>({id:d.id,...d.data()}));P={};p.forEach(d=>P[d.id]=d.data());render();refresh()}
+// ---- Google OAuth (PKCE, browser sistem) ----
+const RED='com.googleusercontent.apps.'+C.clientId.split('.apps.')[0]+':/oauth2redirect';
+const b64=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+async function addAcct(){ver=b64(crypto.getRandomValues(new Uint8Array(32)));const ch=b64(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ver)));
+ Capacitor.Plugins.Browser.open({url:'https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams({client_id:C.clientId,redirect_uri:RED,response_type:'code',scope:'https://www.googleapis.com/auth/drive.file',code_challenge:ch,code_challenge_method:'S256',access_type:'offline',prompt:'consent select_account'})})}
+window.Capacitor&&Capacitor.Plugins.App&&Capacitor.Plugins.App.addListener('appUrlOpen',async e=>{
+ const code=new URL(e.url).searchParams.get('code');if(!code)return;Capacitor.Plugins.Browser.close();
+ const j=await(await fetch(TOK,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({code,code_verifier:ver,client_id:C.clientId,redirect_uri:RED,grant_type:'authorization_code'})})).json();
+ if(!j.refresh_token)return toast('Gagal menambah akun. Coba lagi.');
+ await U().collection('accts').add({refresh:j.refresh_token,order:Date.now()});toast('Akun ditambahkan');load()});
+async function at(a){const t=tok[a.id];if(t&&t.exp>Date.now())return t.v;
+ const j=await(await fetch(TOK,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:C.clientId,refresh_token:a.refresh,grant_type:'refresh_token'})})).json();
+ if(!j.access_token)throw Error('token');tok[a.id]={v:j.access_token,exp:Date.now()+(j.expires_in-900)*1e3};return j.access_token}
+const gf=async(a,url,o={})=>{const r=await fetch(url,{...o,headers:{...o.headers,Authorization:'Bearer '+await at(a)}});if(!r.ok)throw Error(r.status);return r};
+async function quota(a){const j=await(await gf(a,D+'about?fields=storageQuota,user(emailAddress)')).json();a.email=j.user.emailAddress;a.limit=j.storageQuota.limit?+j.storageQuota.limit:Infinity;a.used=+j.storageQuota.usage}
+async function refresh(){const all=[],tr=[],F='files(id,name,mimeType,size,thumbnailLink,createdTime,appProperties,videoMediaMetadata(durationMillis))';
+ await Promise.all(accts.map(async a=>{try{await quota(a);a.err=0;
+  const[x,y]=await Promise.all(['false','true'].map(async t=>(await(await gf(a,D+'files?pageSize=500&q=trashed%3D'+t+'&fields='+F)).json()).files||[]));
+  x.forEach(f=>all.push({...f,a}));y.forEach(f=>tr.push({...f,a}))}catch(e){a.err=1}}));
+ files=all.sort((x,y)=>y.createdTime.localeCompare(x.createdTime));trash=tr;render()}
+// ---- Upload dengan prioritas akun ----
+async function up(f,folder){await Promise.all(accts.map(a=>quota(a).catch(()=>{a.limit=0})));
+ const a=accts.find(a=>a.limit-a.used>=f.size);if(!a)return toast('Semua akun penuh. Tidak ada tempat untuk '+f.name);
+ toast('Mengunggah ke '+a.email+'...');const meta={name:f.name};if(folder)meta.appProperties={folder};
+ const r=await gf(a,'https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable',{method:'POST',headers:{'Content-Type':'application/json','X-Upload-Content-Type':f.type||'application/octet-stream'},body:JSON.stringify(meta)});
+ await gf(a,r.headers.get('Location'),{method:'PUT',body:f});toast(f.name+' masuk ke akun '+(accts.indexOf(a)+1))}
+async function thumb(f){try{let b;if(f.thumbnailLink)try{b=await(await gf(f.a,f.thumbnailLink)).blob()}catch(e){}
+ if(!b&&f.mimeType.startsWith('image/')&&+f.size<15e6)b=await(await gf(f.a,D+'files/'+f.id+'?alt=media')).blob();
+ const el=$('#g'+f.id);if(b&&el)el.style.backgroundImage=`url(${URL.createObjectURL(b)})`}catch(e){}}
+async function showImg(f){$('#vb').textContent='Memuat...';try{const oc=await(await caches.open('off')).match('/_o/'+f.id),u=URL.createObjectURL(oc?await oc.blob():await(await gf(f.a,D+'files/'+f.id+'?alt=media')).blob());
+ $('#vb').innerHTML=f.mimeType.startsWith('image/')?`<img src="${u}">`:`<a href="${u}" download="${esc(f.name)}" style="color:var(--sun)">Unduh ${esc(f.name)}</a>`}catch(e){$('#vb').textContent='Gagal memuat berkas.'}}
+const patch=(f,b)=>gf(f.a,D+'files/'+f.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+const delFile=f=>patch(f,{trashed:true}),restoreFile=f=>patch(f,{trashed:false}),purgeFile=f=>gf(f.a,D+'files/'+f.id,{method:'DELETE'}),moveFile=(f,fid)=>patch(f,{appProperties:{folder:fid||null}});
+// ---- simpan offline (Cache API; diputar lewat service worker) ----
+let offm={};try{offm=JSON.parse(localStorage.off||'{}')}catch(e){}
+const saveM=()=>{try{localStorage.off=JSON.stringify(offm)}catch(e){}},isOff=id=>!!offm[id],offList=()=>Object.values(offm),net=()=>navigator.onLine!==false;
+async function saveOff(f){const e=navigator.storage&&navigator.storage.estimate?await navigator.storage.estimate():null;if(e&&e.quota-e.usage<+f.size*1.1)return toast('Penyimpanan HP tidak cukup untuk '+f.name);
+ toast('Mengunduh '+f.name+'...');const r=await gf(f.a,D+'files/'+f.id+'?alt=media');await(await caches.open('off')).put('/_o/'+f.id,r);
+ offm[f.id]={id:f.id,name:f.name,mimeType:f.mimeType,size:f.size,createdTime:f.createdTime,aid:f.a.id,videoMediaMetadata:f.videoMediaMetadata};saveM()}
+async function rmOff(id){await(await caches.open('off')).delete('/_o/'+id);delete offm[id];saveM()}
+async function mkF(name,parent){const r=await U().collection('folders').add({name,parent});folders.push({id:r.id,name,parent})}
+async function dropFolders(ids){await Promise.all(ids.map(i=>U().collection('folders').doc(i).delete()));folders=folders.filter(f=>!ids.includes(f.id))}
+async function mv(i,d){const j=i+d;if(j<0||j>=accts.length)return;const[x,y]=[accts[i],accts[j]];
+ await Promise.all([U().collection('accts').doc(x.id).update({order:y.order}),U().collection('accts').doc(y.id).update({order:x.order})]);load()}
+async function rm(i){if(!confirm('Lepas akun ini dari Cloud? File di Drive tidak dihapus.'))return;await U().collection('accts').doc(accts[i].id).delete();load()}
+// ---- streaming lewat service worker ----
+const persistP=(id,t,d)=>U().collection('prog').doc(id).set({t,d});
+async function pushTok(){if(!('serviceWorker' in navigator))return;const r=await navigator.serviceWorker.ready,o={};for(const a of accts)try{o[a.id]=await at(a)}catch(e){}r.active.postMessage({tok:o})}
+const prep=pushTok,srcOf=f=>`/_s/${(f.a&&f.a.id)||f.aid}/${f.id}?s=${f.size}&m=${encodeURIComponent(f.mimeType)}`;
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');setInterval(pushTok,6e5);
+ navigator.serviceWorker.addEventListener('message',async e=>{if(e.data&&e.data.need){const a=accts.find(x=>x.id==e.data.need);if(a&&e.data.force)delete tok[a.id];e.ports[0].postMessage(a?await at(a):null)}})}
+</script>
+</body></html>

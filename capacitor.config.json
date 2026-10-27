@@ -1,0 +1,1 @@
+{ "appId": "com.cloud.app", "appName": "Cloud", "webDir": "www", "server": { "androidScheme": "https" } }

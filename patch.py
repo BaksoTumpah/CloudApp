@@ -13,9 +13,17 @@ print('Skema redirect:', sch)
 # tanda tangan release (keystore dari env KS_FILE / KS_PASS / KS_ALIAS)
 g = 'android/app/build.gradle'
 s = open(g).read()
-sg = ('signingConfigs { release { storeFile file(System.getenv("KS_FILE")) storePassword System.getenv("KS_PASS") '
-      'keyAlias System.getenv("KS_ALIAS") keyPassword System.getenv("KS_PASS") } }\n'
-      '    buildTypes { release { signingConfig signingConfigs.release')
+sg = ('signingConfigs {\n'
+      '        release {\n'
+      '            storeFile file(System.getenv("KS_FILE"));\n'
+      '            storePassword System.getenv("KS_PASS");\n'
+      '            keyAlias System.getenv("KS_ALIAS");\n'
+      '            keyPassword System.getenv("KS_PASS")\n'
+      '        }\n'
+      '    }\n'
+      '    buildTypes {\n'
+      '        release {\n'
+      '            signingConfig signingConfigs.release')
 s2 = re.sub(r'buildTypes\s*\{\s*release\s*\{', lambda m: sg, s, count=1)
 assert s2 != s, 'gagal menambah signingConfig'
 open(g, 'w').write(s2)
